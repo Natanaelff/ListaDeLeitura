@@ -1,21 +1,52 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-const Book = () => {
+const Book = ({navigation}) => {
+
+    const [title, setTitle] = useState ();
+    const [description, setDescripition] = useState ();
+    const [photo, setPhoto] = useState();
+
+    const isValid = () => {
+        if (title !== undefined && title !== '') {
+            return true;
+        }
+            return false;
+    };
+
+    const onSave = () => {
+        console.log(`Title ${title}`);
+        console.log(`Description ${description}`);
+
+        if (isValid()) {
+            console.log('Valido!');
+        } else {
+            console.log('Invalido!');
+        }
+    };
+
     return (
         <View style={styles.container}>
             <Text style={styles.pageTitle}>Inclua sua nova tarefa..</Text>
             <TextInput 
                 placeholder="Título"
                 style={styles.input}
+                value={title}
+                onChangeText={(text) => {
+                    setTitle(text)
+                }}
             />  
             <TextInput 
                 placeholder="Descrição"
                 style={styles.input}
                 multiline={true}
                 numberOfLines={5}
+                value={description}
+                onChangeText={(text) => {
+                    setDescripition(text)
+                }}
             />
 
             <View style={styles.ViewTouch}>
@@ -23,18 +54,18 @@ const Book = () => {
                     <Icon name="photo-camera" size={25} color="#fff" />
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.addButton}>
+                <TouchableOpacity style={[styles.addButton, (!isValid()) ? styles.addButtonInvalid : '']} onPress={onSave}>
                     <Text style={styles.addText}>Adicionar</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.cancelButton}>
+                <TouchableOpacity onPress={() => {navigation.goBack();}} style={styles.cancelButton}>
                     <Text style={styles.cancelText}>Cancelar</Text>
                 </TouchableOpacity>
             </View>
 
         </View>
     );
-} 
+}
 
 const styles = StyleSheet.create ({
     container: {
@@ -76,6 +107,14 @@ const styles = StyleSheet.create ({
         borderRadius: 8,
         marginBottom: 30,
     },  
+
+    addButtonInvalid: {
+        backgroundColor: "#e74c3c",
+        padding: 10,
+        borderRadius: 8,
+        marginBottom: 30,
+        opacity: 0.5,
+    },
 
     addText: {
         color: "#fff",
