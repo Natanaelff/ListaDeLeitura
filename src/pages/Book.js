@@ -1,13 +1,24 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, AsyncStorage } from 'react-native';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const Book = ({navigation}) => {
 
+    const [books, setBooks] = useState([]);
     const [title, setTitle] = useState ();
     const [description, setDescripition] = useState ();
     const [photo, setPhoto] = useState();
+
+    useEffect (() => {
+        
+        const data = AsyncStorage.getItem("books").then(data => {
+            const book = JSON.parse(data);
+
+            setBooks(book);
+        })
+    
+    }, []);
 
     const isValid = () => {
         if (title !== undefined && title !== '') {
@@ -16,14 +27,25 @@ const Book = ({navigation}) => {
             return false;
     };
 
-    const onSave = () => {
-        console.log(`Title ${title}`);
-        console.log(`Description ${description}`);
-
+    const onSave = async () => {
+        
         if (isValid()) {
-            console.log('Valido!');
+            const id = Math.random(5000).toString();
+
+            const data = {
+                id,
+                title,
+                description,
+                photo,
+            };
+
+            books.push(data);
+
+            await AsyncStorage.setItem('books',JSON.stringify(books));
+            navigation.goBack();
+
         } else {
-            console.log('Invalido!');
+            alert('Você ainda não adicionou o Título');
         }
     };
 
@@ -54,7 +76,7 @@ const Book = ({navigation}) => {
                     <Icon name="photo-camera" size={25} color="#fff" />
                 </TouchableOpacity>
 
-                <TouchableOpacity style={[styles.addButton, (!isValid()) ? styles.addButtonInvalid : '']} onPress={onSave}>
+                <TouchableOpacity style={styles.addButton} onPress={onSave}>
                     <Text style={styles.addText}>Adicionar</Text>
                 </TouchableOpacity>
 
@@ -107,14 +129,6 @@ const styles = StyleSheet.create ({
         borderRadius: 8,
         marginBottom: 30,
     },  
-
-    addButtonInvalid: {
-        backgroundColor: "#e74c3c",
-        padding: 10,
-        borderRadius: 8,
-        marginBottom: 30,
-        opacity: 0.5,
-    },
 
     addText: {
         color: "#fff",
