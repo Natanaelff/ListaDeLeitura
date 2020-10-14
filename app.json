@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "leituraList",
-    "slug": "leituraList",
+    "name": "Task List",
+    "slug": "Task List",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./src/assets/icon.png",

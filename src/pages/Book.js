@@ -5,10 +5,20 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const Book = ({navigation}) => {
 
+    const book = navigation.getParam("book", {
+        title: '',
+        description: '',
+        read: false,
+        photo: '',
+    });
+
+    const isEdit = navigation.getParam("isEdit", false);
+
     const [books, setBooks] = useState([]);
-    const [title, setTitle] = useState ();
-    const [description, setDescripition] = useState ();
-    const [photo, setPhoto] = useState();
+    const [title, setTitle] = useState (book.title);
+    const [description, setDescripition] = useState (book.description);
+    const [read, setRead] = useState (book.read);
+    const [photo, setPhoto] = useState(book.photo);
 
     useEffect (() => {
         
@@ -30,18 +40,39 @@ const Book = ({navigation}) => {
     const onSave = async () => {
         
         if (isValid()) {
-            const id = Math.random(5000).toString();
 
-            const data = {
-                id,
-                title,
-                description,
-                photo,
-            };
+            if (isEdit) {
 
-            books.push(data);
+                let newBooks = books;
 
-            await AsyncStorage.setItem('books',JSON.stringify(books));
+                newBooks.map(item => {
+                    if(item.id === book.id) {
+                        item.title = title;
+                        item.description = description;
+                        item.read = read;
+                        item.photo = photo;
+                    }
+                     return item;
+                });
+
+                await AsyncStorage.setItem('books',JSON.stringify(newBooks));
+
+            } else {
+                const id = Math.random(5000).toString();
+
+                const data = {
+                    id,
+                    title,
+                    description,
+                    photo,
+                };
+
+                books.push(data);
+                await AsyncStorage.setItem('books',JSON.stringify(books));
+
+            }
+            
+            
             navigation.goBack();
 
         } else {
@@ -72,12 +103,8 @@ const Book = ({navigation}) => {
             />
 
             <View style={styles.ViewTouch}>
-                <TouchableOpacity style={styles.camera}>
-                    <Icon name="photo-camera" size={25} color="#fff" />
-                </TouchableOpacity>
-
                 <TouchableOpacity style={styles.addButton} onPress={onSave}>
-                    <Text style={styles.addText}>Adicionar</Text>
+                    <Text style={styles.addText}>{isEdit ? "Atualizar" : "Adicionar"}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={() => {navigation.goBack();}} style={styles.cancelButton}>
@@ -93,19 +120,21 @@ const styles = StyleSheet.create ({
     container: {
       flex: 1,
       padding: 50,
+      backgroundColor: "#dfe6e9",
     },
 
     pageTitle: {
         textAlign: "center",
-        fontSize: 16,
-        marginBottom: 20,
+        fontSize: 30,
+        color: "#e74c3c",
+        marginBottom: 30,
     },
 
     input: {
         fontSize: 16,
         borderBottomColor: "#e74c3c",
         borderBottomWidth: 1,
-        marginBottom: 10,
+        marginBottom: 20,
     },  
 
     camera: {
@@ -121,11 +150,12 @@ const styles = StyleSheet.create ({
 
     ViewTouch: {
         alignItems:"center",
+        marginVertical:30,
     },
 
     addButton: {
         backgroundColor: "#e74c3c",
-        padding: 10,
+        padding: 20,
         borderRadius: 8,
         marginBottom: 30,
     },  
@@ -138,7 +168,7 @@ const styles = StyleSheet.create ({
 
     cancelButton: {
         backgroundColor: "#95a5a6",
-        padding: 10,
+        padding: 15,
         borderRadius: 8,
     },  
 
